@@ -104,6 +104,7 @@ class ConsultationStatus(str, Enum):
     IN_PROGRESS = "IN_PROGRESS"
     COMPLETED = "COMPLETED"
     CANCELLED = "CANCELLED"
+    FAILED = "FAILED"
 
 class Consultation(SQLModel, table=True):
     __tablename__ = "consultations"

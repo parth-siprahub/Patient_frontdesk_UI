@@ -1,13 +1,23 @@
 # 🐍 NeuroAssist v3 - Python Backend (FastAPI)
 
-This is the refactored clinical backend migrated from Node.js to Python FastAPI, matching the architectural blueprint with Nginx as the gateway and AI integration (AssemblyAI + Gemini).
+This is the refactored clinical backend migrated from Node.js to Python FastAPI, designed for secure, asynchronous processing of medical consultations. It integrates **active** Speech-to-Text (AssemblyAI) and supports LLM integration (Gemini - currently configured as disabled).
+
+## 🌟 Key Features (Current State)
+
+*   **Speech-to-Text (STT)**:
+    *   **Engine**: AssemblyAI Python SDK (Asynchronous Polling).
+    *   **Word Boost**: Optimized for neurological terminology (e.g., "Levetiracetam", "Donepezil") using custom vocabulary configurations.
+    *   **Privacy**: Implementation includes PII Redaction and Speaker Diarization.
+*   **LLM Layout**: Architecture for Gemini 1.5 Flash integration is present but temporarily toggle-disabled for focus on transcription accuracy (STT-Only Mode).
+*   **Resilience**: Robust error handling for corrupt file uploads and network issues.
+*   **Verification**: Comprehensive automated test suite for End-to-End validation.
 
 ## 🚀 Quick Start (Docker - Recommended)
 
 1.  **Configure Environment**:
     Edit the `environment` section in `docker-compose.yml` with your API keys:
-    *   `ASSEMBLYAI_API_KEY`
-    *   `GEMINI_API_KEY`
+    *   `ASSEMBLYAI_API_KEY` (Required)
+    *   `GOOGLE_API_KEY` (Required for future LLM enablement)
 
 2.  **Run with Docker Compose**:
     ```bash
@@ -28,13 +38,29 @@ The system will be accessible at:
 
 2.  **Setup Environment**:
     Create a `.env` file based on `.env.example`.
+    *   Ensure `ASSEMBLYAI_API_KEY` is set.
+    *   `DATABASE_URL` defaults to PostgreSQL.
 
 3.  **Run the Server**:
     ```bash
-    python -m app.main
-    # OR
     uvicorn app.main:app --reload
     ```
+
+## 🧪 Verification & Testing (New)
+
+A comprehensive verification suite has been added to `tests/` to validate the entire workflow without relying on manual checks.
+
+### Running the Live Validation Suite
+To verify the system end-to-end (Auth -> Upload -> STT -> Database):
+```bash
+# This uses a temporary in-memory database and live STT calls
+pytest tests/test_live_chain.py
+```
+
+### Available Tests
+*   `tests/test_live_chain.py`: Full End-to-End Smoke Test & Resilience Test.
+*   `tests/test_live_stt.py`: Targeted unit test for AssemblyAI accuracy and configuration.
+*   `tests/verify_flow.py`: Mocked validation script for logic testing.
 
 ## 🏗️ Architecture Summary
 
@@ -43,8 +69,8 @@ The system will be accessible at:
 *   **Database**: PostgreSQL
 *   **Security**: JWT (OAuth2) with Role-Based Access Control
 *   **AI Layer**: 
-    *   **STT**: Official AssemblyAI Python SDK
-    *   **LLM**: Google Generative AI (Gemini) SDK
+    *   **STT**: Official AssemblyAI Python SDK (with Word Boost)
+    *   **LLM**: Google Generative AI (Gemini) SDK (Codebase prepared, Functionality Paused)
 *   **Gateway**: Nginx (Reverse Proxy, Static File Serving)
 
 ## 📡 Key Endpoints
@@ -52,6 +78,8 @@ The system will be accessible at:
 ### Auth
 *   `POST /api/v1/auth/signup`: Create user and profile
 *   `POST /api/v1/auth/login`: Get JWT Bearer token
+*   `GET /api/v1/auth/me`: Get current user details
 
 ### Clinical Sessions
-*   `POST /api/v1/consultations/{id}/process`: Upload audio -> Transcribe -> Generate SOAP Note
+*   `POST /api/v1/consultations/{id}/upload`: Upload audio -> Trigger Background Processing
+*   `GET /api/v1/consultations/{id}`: Poll status (`IN_PROGRESS` -> `COMPLETED`)

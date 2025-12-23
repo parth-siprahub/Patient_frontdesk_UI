@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
     ASSEMBLYAI_API_KEY: str
-    GEMINI_API_KEY: str
+    GOOGLE_API_KEY: str # User requested this specific name
     UPLOAD_DIR: str = "uploads"
     CORS_ORIGINS: List[str] = ["*"]
     PORT: int = 8000
