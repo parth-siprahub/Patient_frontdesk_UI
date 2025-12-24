@@ -75,6 +75,35 @@ pytest tests/test_live_chain.py
     *   **LLM**: Google Generative AI (Gemini 2.0 Flash) SDK (Active)
 *   **Gateway**: Nginx (Reverse Proxy, Static File Serving)
 
+## Verification & Accuracy 📊
+This project includes a robust suite for validating AI performance.
+
+### 1. Batch Verification (`batch_verify.py`)
+Processes a folder of audio files to ensure end-to-end stability.
+```bash
+python batch_verify.py
+```
+
+### 2. Accuracy Calibration (`calculate_accuracy.py`)
+Compares generated transcripts against Ground Truth (`.TextGrid`) to compute **Word Error Rate (WER)**.
+*   **Current Performance**: ~15.8% WER (Above Average for conversational medical audio).
+*   **Metric**: Weighted WER (ignoring punctuation/case).
+
+### 3. SOAP Quality (`test_soap_generation.py`)
+Verifies that the LLM generates valid JSON SOAP notes with **Strict Grounding** (no hallucinations).
+
+## Security & Compliance 🛡️
+*   **API Key Safety**: `.env` is gitignored.
+*   **History Scrubbing**: This repository's history has been scrubbed using `git-filter-repo` to remove historical API key leaks.
+*   **PII Redaction**: Enabled by default in `stt_service.py` (via AssemblyAI).
+
+## Supported File Formats
+The system utilizes AssemblyAI for transcription and supports the following audio/video formats:
+*   **Audio**: `.mp3`, `.wav`, `.aac`, `.m4a`, `.ogg`, `.flac`, `.alac`, `.wma`, `.aiff`, `.au`
+*   **Video**: `.mp4`, `.m4v`, `.mov`, `.wmv`
+
+*Note: Project files (e.g., `.flp`, `.logicx`) or MIDI files are NOT supported.*
+
 ## 📡 Key Endpoints
 
 ### Auth

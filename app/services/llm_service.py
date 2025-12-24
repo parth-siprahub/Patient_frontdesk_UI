@@ -53,8 +53,10 @@ class GeminiService:
         Instructions:
         1. Analyze the transcript in the context of the patient's demographics and history.
         2. Extrapolate the Subjective, Objective, Assessment, and Plan sections.
-        3. Identify any Risk Flags (e.g., Suicide risk, Severe allergies, Abuse).
-        4. Return STRICTLY valid JSON. No markdown formatting.
+        3. **STRICT GROUNDING**: Do NOT infer information not present in the audio. If a vital sign or detail is not explicitly stated or strongly implied by the transcript, do NOT invent it.
+        4. **UNCERTAINTY**: If a term is ambiguous (e.g., "measure" vs "mention") or if the speaker is unclear, flag it in the "low_confidence" list.
+        5. Identify any Risk Flags (e.g., Suicide risk, Severe allergies, Abuse).
+        6. Return STRICTLY valid JSON. No markdown formatting.
         
         Required JSON Structure:
         {{
@@ -64,16 +66,33 @@ class GeminiService:
                 "assessment": "Diagnosis or differential diagnoses...",
                 "plan": "Treatment plan, medications, follow-up..."
             }},
+            "low_confidence": ["list", "of", "ambiguous", "terms"],
             "risk_flags": ["Risk 1", "Risk 2"] 
         }}
         """
         
         # Offload the blocking API call to a thread
         loop = asyncio.get_event_loop()
-        response = await loop.run_in_executor(
-            None, 
-            lambda: model.generate_content(prompt)
-        )
+        
+        # Simple Retry Logic for 429 Errors
+        max_retries = 3
+        base_delay = 5
+        
+        for attempt in range(max_retries):
+            try:
+                response = await loop.run_in_executor(
+                    None, 
+                    lambda: model.generate_content(prompt)
+                )
+                break # Success
+            except Exception as e:
+                is_quota = "429" in str(e) or "quota" in str(e).lower() or "resource exhausted" in str(e).lower()
+                if is_quota and attempt < max_retries - 1:
+                    wait_time = base_delay * (2 ** attempt) # 5s, 10s
+                    print(f"⚠️ Quota Warning: Retrying LLM in {wait_time}s... (Attempt {attempt+1}/{max_retries})")
+                    await asyncio.sleep(wait_time)
+                else:
+                    raise Exception(f"Gemini generation failed after {attempt+1} attempts: {str(e)}")
         
         try:
             # Parse JSON result
