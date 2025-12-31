@@ -3,7 +3,7 @@ from sqlmodel import Session, select
 from app.core.db import get_session
 from app.models.base import Consultation, ConsultationStatus, Appointment, User, UserRole, AudioFile, SOAPNote, AudioUploaderType
 from app.api.deps import get_current_user, RoleChecker
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 from typing import Optional, List, Any
 from uuid import UUID, uuid4
 import os
@@ -26,10 +26,12 @@ class ConsultationRead(BaseModel):
     patient_id: UUID
     doctor_id: UUID
     appointment_id: UUID
+    appointment: Optional[Any] = None
     audio_file: Optional[Any] = None
     soap_note: Optional[Any] = None
 
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        orm_mode = True
 
 @router.post("/", response_model=Consultation)
 def create_consultation(
@@ -71,7 +73,11 @@ def get_consultation(
     consultation = session.exec(
         select(Consultation)
         .where(Consultation.id == id)
-        .options(selectinload(Consultation.audio_file), selectinload(Consultation.soap_note))
+        .options(
+            selectinload(Consultation.audio_file), 
+            selectinload(Consultation.soap_note),
+            selectinload(Consultation.appointment)
+        )
     ).first()
     
     if not consultation:
@@ -86,13 +92,34 @@ def get_consultation(
          
     return consultation
 
+@router.get("/me", response_model=List[ConsultationRead])
+def get_my_consultations(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role == UserRole.PATIENT:
+        statement = select(Consultation).where(Consultation.patient_id == current_user.id)
+    elif current_user.role == UserRole.DOCTOR:
+        statement = select(Consultation).where(Consultation.doctor_id == current_user.id)
+    else:
+        statement = select(Consultation)
+        
+    results = session.exec(
+        statement.options(
+            selectinload(Consultation.audio_file), 
+            selectinload(Consultation.soap_note),
+            selectinload(Consultation.appointment)
+        )
+    ).all()
+    return results
+
 @router.post("/{id}/upload")
 async def upload_audio(
     id: UUID,
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     session: Session = Depends(get_session),
-    current_user: User = Depends(RoleChecker([UserRole.DOCTOR]))
+    current_user: User = Depends(RoleChecker([UserRole.DOCTOR, UserRole.PATIENT]))
 ):
     consultation = session.get(Consultation, id)
     if not consultation:

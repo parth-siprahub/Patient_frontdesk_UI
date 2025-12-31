@@ -1,5 +1,4 @@
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException, status, Request
 from jose import jwt, JWTError
 from sqlmodel import Session
 from app.core.config import settings
@@ -11,26 +10,27 @@ class TokenPayload(BaseModel):
     sub: str = None
     role: str = None
 
-reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+def get_current_user(request: Request, session: Session = Depends(get_session)):
+    # Allow preflight requests without auth
+    if request.method == "OPTIONS":
+        return None
 
-def get_current_user(
-    session: Session = Depends(get_session),
-    token: str = Depends(reusable_oauth2)
-) -> User:
+    auth = request.headers.get("Authorization")
+    if not auth:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    token = auth.replace("Bearer ", "")
+    
     try:
-        payload = jwt.decode(
-            token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
-        )
+        payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
         token_data = TokenPayload(**payload)
     except (JWTError, Exception):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-        )
+        raise HTTPException(status_code=401, detail="Invalid token")
     
     user = session.get(User, token_data.sub)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
     return user
 
 def RoleChecker(allowed_roles: list[UserRole]):

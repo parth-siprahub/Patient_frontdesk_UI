@@ -1,0 +1,91 @@
+﻿--- Schema for patient_profiles ---
+Column: id
+  Type: UUID
+  Nullable: False
+  Default: None
+------------------------------
+Column: user_id
+  Type: UUID
+  Nullable: False
+  Default: None
+------------------------------
+Column: first_name
+  Type: TEXT
+  Nullable: False
+  Default: None
+------------------------------
+Column: last_name
+  Type: TEXT
+  Nullable: False
+  Default: None
+------------------------------
+Column: date_of_birth
+  Type: TIMESTAMP
+  Nullable: True
+  Default: None
+------------------------------
+Column: gender
+  Type: VARCHAR(17)
+  Nullable: True
+  Default: None
+------------------------------
+Column: phone_number
+  Type: TEXT
+  Nullable: True
+  Default: None
+------------------------------
+Column: address
+  Type: TEXT
+  Nullable: True
+  Default: None
+------------------------------
+Column: city
+  Type: TEXT
+  Nullable: True
+  Default: None
+------------------------------
+Column: state
+  Type: TEXT
+  Nullable: True
+  Default: None
+------------------------------
+Column: zip_code
+  Type: TEXT
+  Nullable: True
+  Default: None
+------------------------------
+Column: country
+  Type: TEXT
+  Nullable: True
+  Default: 'India'::text
+------------------------------
+Column: emergency_contact
+  Type: TEXT
+  Nullable: True
+  Default: None
+------------------------------
+Column: blood_group
+  Type: TEXT
+  Nullable: True
+  Default: None
+------------------------------
+Column: allergies
+  Type: TEXT
+  Nullable: True
+  Default: None
+------------------------------
+Column: medical_history
+  Type: TEXT
+  Nullable: True
+  Default: None
+------------------------------
+Column: created_at
+  Type: TIMESTAMP
+  Nullable: False
+  Default: CURRENT_TIMESTAMP
+------------------------------
+Column: updated_at
+  Type: TIMESTAMP
+  Nullable: False
+  Default: None
+------------------------------

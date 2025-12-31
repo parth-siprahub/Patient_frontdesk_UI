@@ -82,7 +82,7 @@ class Appointment(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     patient_id: UUID = Field(foreign_key="users.id")
     doctor_id: UUID = Field(foreign_key="users.id")
-    doctor_id: UUID = Field(foreign_key="users.id")
+    doctor_name: Optional[str] = Field(default=None)
     scheduled_at: datetime = Field(index=True)
     reason: Optional[str] = None
     status: AppointmentStatus = Field(default=AppointmentStatus.SCHEDULED, index=True)

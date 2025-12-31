@@ -4,7 +4,7 @@ from sqlmodel import Session, select
 from app.core.db import get_session
 from app.core.security import get_password_hash, verify_password, create_access_token
 from app.models.base import User, PatientProfile, DoctorProfile, UserRole
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from uuid import UUID, uuid4
 
@@ -12,7 +12,7 @@ router = APIRouter()
 
 class UserCreate(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(..., max_length=72)
     role: UserRole
     first_name: str
     last_name: str

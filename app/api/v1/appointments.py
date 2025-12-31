@@ -2,51 +2,59 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from app.core.db import get_session
 from app.models.base import Appointment, User, UserRole, AppointmentStatus
-from app.api.deps import get_current_user, RoleChecker
-from pydantic import BaseModel
-from typing import List, Optional
-from datetime import datetime
+from app.api.deps import get_current_user
+from app.schemas.appointment import AppointmentCreate
+from datetime import datetime, timezone
 from uuid import UUID
 
 router = APIRouter()
 
-class AppointmentCreate(BaseModel):
-    patient_id: UUID
-    doctor_id: UUID
-    doctor_id: UUID
-    scheduled_at: datetime
-    reason: Optional[str] = None
-    notes: Optional[str] = None
-
-@router.post("/", response_model=Appointment)
+@router.post("/", status_code=201)
 def create_appointment(
-    appointment_in: AppointmentCreate,
+    payload: AppointmentCreate,
     session: Session = Depends(get_session),
-    current_user: User = Depends(RoleChecker([UserRole.DOCTOR, UserRole.FRONT_DESK, UserRole.PATIENT]))
+    current_user: User = Depends(get_current_user)
 ):
-    # Logic for PATIENT booking
-    if current_user.role == UserRole.PATIENT:
-        # Force patient_id to be self
-        if appointment_in.patient_id != current_user.id:
-            raise HTTPException(status_code=403, detail="Patients can only book for themselves")
+    # Validate user is a patient
+    if current_user.role != UserRole.PATIENT:
+        raise HTTPException(status_code=403, detail="Only patients can book appointments")
     
-    # Check if patient exists (redundant if patient is self, but good for Doctor booking)
-    patient = session.get(User, appointment_in.patient_id)
-    if not patient or patient.role != UserRole.PATIENT:
-        raise HTTPException(status_code=404, detail="Patient not found")
-        
-    # Check if doctor exists
-    doctor = session.get(User, appointment_in.doctor_id)
+    # Validate scheduled time is in the future
+    if payload.scheduled_at <= datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="Cannot book appointment in the past")
+    
+    # Merge symptoms from reason or notes
+    symptoms = payload.reason or payload.notes
+    if not symptoms:
+        raise HTTPException(status_code=400, detail="Symptoms required")
+    
+    # Validate doctor exists and is a doctor
+    doctor = session.get(User, payload.doctor_id)
     if not doctor or doctor.role != UserRole.DOCTOR:
         raise HTTPException(status_code=404, detail="Doctor not found")
-        
-    db_appointment = Appointment.model_validate(appointment_in)
-    session.add(db_appointment)
+    
+    # Create appointment
+    appointment = Appointment(
+        patient_id=payload.patient_id,
+        doctor_id=payload.doctor_id,
+        doctor_name=payload.doctor_name,
+        scheduled_at=payload.scheduled_at,
+        reason=symptoms,
+        status=AppointmentStatus.SCHEDULED
+    )
+    
+    session.add(appointment)
     session.commit()
-    session.refresh(db_appointment)
-    return db_appointment
+    session.refresh(appointment)
+    
+    return {
+        "id": str(appointment.id),
+        "status": "confirmed",
+        "scheduled_at": appointment.scheduled_at.isoformat(),
+        "doctor_name": appointment.doctor_name
+    }
 
-@router.get("/me", response_model=List[Appointment])
+@router.get("/me")
 def get_my_appointments(
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)
@@ -55,9 +63,8 @@ def get_my_appointments(
         statement = select(Appointment).where(Appointment.patient_id == current_user.id)
     elif current_user.role == UserRole.DOCTOR:
         statement = select(Appointment).where(Appointment.doctor_id == current_user.id)
-    else: # FRONT_DESK see all
+    else:
         statement = select(Appointment)
-        
     return session.exec(statement).all()
 
 @router.patch("/{id}/status")
@@ -65,14 +72,17 @@ def update_status(
     id: UUID,
     new_status: AppointmentStatus,
     session: Session = Depends(get_session),
-    current_user: User = Depends(RoleChecker([UserRole.DOCTOR, UserRole.FRONT_DESK]))
+    current_user: User = Depends(get_current_user)
 ):
-    db_appointment = session.get(Appointment, id)
-    if not db_appointment:
+    if current_user.role not in [UserRole.DOCTOR, UserRole.FRONT_DESK]:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    appointment = session.get(Appointment, id)
+    if not appointment:
         raise HTTPException(status_code=404, detail="Appointment not found")
     
-    db_appointment.status = new_status
-    db_appointment.updated_at = datetime.utcnow()
-    session.add(db_appointment)
+    appointment.status = new_status
+    appointment.updated_at = datetime.now(timezone.utc)
+    session.add(appointment)
     session.commit()
     return {"message": f"Status updated to {new_status}"}

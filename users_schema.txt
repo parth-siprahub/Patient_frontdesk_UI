@@ -1,0 +1,36 @@
+﻿--- Schema for users ---
+Column: id
+  Type: UUID
+  Nullable: False
+  Default: None
+------------------------------
+Column: email
+  Type: TEXT
+  Nullable: False
+  Default: None
+------------------------------
+Column: password_hash
+  Type: TEXT
+  Nullable: False
+  Default: None
+------------------------------
+Column: role
+  Type: VARCHAR(7)
+  Nullable: False
+  Default: None
+------------------------------
+Column: status
+  Type: VARCHAR(20)
+  Nullable: False
+  Default: 'ACTIVE'::"UserStatus"
+------------------------------
+Column: created_at
+  Type: TIMESTAMP
+  Nullable: False
+  Default: CURRENT_TIMESTAMP
+------------------------------
+Column: updated_at
+  Type: TIMESTAMP
+  Nullable: False
+  Default: None
+------------------------------

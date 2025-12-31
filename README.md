@@ -1,165 +1,289 @@
-# 🐍 NeuroAssist v3 - Python Backend (FastAPI)
+# NeuroAssist v3 - AI-Powered Healthcare Platform
 
-This is the refactored clinical backend migrated from Node.js to Python FastAPI, designed for secure, asynchronous processing of medical consultations. It integrates **active** Speech-to-Text (AssemblyAI) and supports LLM integration (Gemini - currently configured as disabled).
+A comprehensive healthcare management system with AI-powered audio transcription, symptom analysis, and appointment booking capabilities.
 
-## 🌟 Key Features (Current State)
+## 🚀 Features
 
-*   **Speech-to-Text (STT)**:
-    *   **Engine**: AssemblyAI Python SDK (Asynchronous Polling).
-    *   **Word Boost**: Optimized for neurological terminology (e.g., "Levetiracetam", "Donepezil") using custom vocabulary configurations.
-    *   **Privacy**: Implementation includes PII Redaction and Speaker Diarization.
-*   **LLM (Active)**: **Google Gemini 2.5 Flash** integrated for Context-Aware SOAP Note generation.
-*   **Context Injection**: Automatically incorporates patient demographics (Age, Gender, History) into the prompt.
-*   **Resilience**: Robust error handling for corrupt file uploads and network issues.
-*   **Verification**: Comprehensive automated test suite for End-to-End validation.
-*   **Smart Triage (New)**: AI-driven urgency scoring and patient prioritization.
-*   **Clinical Safety (New)**: Automated drug-condition contraindication checks.
+### Core Functionality
+- **Patient Management**: Complete patient registration, authentication, and profile management
+- **Appointment Booking**: Schedule appointments with doctors, voice or text symptom submission
+- **Audio Consultations**: Record and transcribe patient consultations using AssemblyAI
+- **AI Analysis**: Automated symptom analysis and medical specialty detection using Google Gemini
+- **SOAP Notes**: AI-generated clinical documentation (Subjective, Objective, Assessment, Plan)
+- **Doctor Dashboard**: View appointments, consultations, and patient history
+- **Role-Based Access**: Separate interfaces for patients, doctors, and front desk staff
 
-## 🚀 Quick Start (Docker - Recommended)
+### Technical Highlights
+- RESTful API with FastAPI
+- JWT-based authentication
+- Real-time audio processing
+- AI-powered medical insights
+- Responsive React frontend
 
-1.  **Configure Environment**:
-    Edit the `environment` section in `docker-compose.yml` with your API keys:
-    *   `ASSEMBLYAI_API_KEY` (Required)
-    *   `GOOGLE_API_KEY` (Required for LLM Features - SOAP Notes)
+## 🛠️ Tech Stack
 
-2.  **Run with Docker Compose**:
-    ```bash
-    docker-compose up --build
-    ```
+### Backend
+- **Framework**: FastAPI (Python 3.10+)
+- **Database**: PostgreSQL
+- **ORM**: SQLModel
+- **Authentication**: JWT (python-jose)
+- **AI Services**:
+  - AssemblyAI (audio transcription)
+  - Google Gemini (medical analysis)
+- **Security**: Bcrypt password hashing
 
-The system will be accessible at:
-*   **API Gateway**: `http://localhost/` (Nginx)
-*   **Swagger Docs**: `http://localhost/docs` (FastAPI)
-*   **Health Check**: `http://localhost/api/v1/health`
+### Frontend
+- **Framework**: React 18 + TypeScript
+- **Build Tool**: Vite
+- **Styling**: TailwindCSS + shadcn/ui
+- **Routing**: React Router v6
+- **HTTP**: Fetch API
 
-## 🛠️ Local Development (No Docker)
+## 📋 Prerequisites
 
-1.  **Install Requirements**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+- Python 3.10 or higher
+- Node.js 18 or higher
+- PostgreSQL 14 or higher
+- AssemblyAI API key
+- Google Gemini API key
 
-2.  **Setup Environment**:
-    Create a `.env` file based on `.env.example`.
-    *   **SECURITY NOTE**: Never commit your `.env` file. It is gitignored.
-    *   Fill in `ASSEMBLYAI_API_KEY` and `GOOGLE_API_KEY` with your actual secrets.
-    *   `DATABASE_URL` defaults to PostgreSQL.
+## ⚙️ Installation
 
-3.  **Run the Server**:
-    ```bash
-    uvicorn app.main:app --reload
-    ```
-
-## 🧪 Verification & Testing (New)
-
-A comprehensive verification suite has been added to `tests/` to validate the entire workflow without relying on manual checks.
-
-### Running the Live Validation Suite
-To verify the system end-to-end (Auth -> Upload -> STT -> Database):
+### 1. Clone the Repository
 ```bash
-# This uses a temporary in-memory database and live STT calls
-pytest tests/test_live_chain.py
+git clone <repository-url>
+cd DB-API_Integrated_NeuroAssist-1
 ```
 
-### Available Tests
-*   `tests/test_live_chain.py`: Full End-to-End Smoke Test & Resilience Test.
-*   `tests/test_live_stt.py`: Targeted unit test for AssemblyAI accuracy and configuration.
-*   `tests/verify_flow.py`: Mocked validation script for logic testing.
-*   `tests/verify_resilience.py`: Verifies Retry logic and Manual Review queue.
+### 2. Backend Setup
 
-### Offline Testing (Quota-Free)
-To test Dashboard logic without consuming API credits:
+#### Create Virtual Environment
 ```bash
-python demo_offline.py
-```
-This runs a simulation using pre-generated SOAP notes.
+python -m venv .venv
 
-## 🏗️ Architecture Summary
+# Windows
+.\.venv\Scripts\Activate.ps1
 
-*   **API Framework**: FastAPI (Asynchronous, High Performance)
-*   **ORM**: SQLModel (Pydantic + SQLAlchemy)
-*   **Database**: PostgreSQL
-*   **Security**: JWT (OAuth2) with Role-Based Access Control
-*   **AI Layer**: 
-    *   **STT**: Official AssemblyAI Python SDK (with Word Boost)
-    *   **LLM**: Google Generative AI (Gemini 2.0 Flash) SDK (Active)
-*   **Gateway**: Nginx (Reverse Proxy, Static File Serving)
-
-## 🩺 Phase 2: Triage, Safety & Resilience
-
-### 1. Smart Triage Algorithm
-*   **Logic**: Analyzes SOAP notes for "Risk Flags" (e.g., Suicide, Chest Pain).
-*   **Scoring**:
-    *   **CRITICAL (90+)**: Immediate threats (Suicide, Stroke).
-    *   **HIGH (70-89)**: Severe symptoms (High Fever, Severe Pain).
-    *   **MODERATE (40-69)**: Acute but stable (Infection, Burn).
-    *   **LOW (0-39)**: Routine checkups.
-
-### 2. Drug Safety Net
-*   **Mechanism**: Cross-references Prescriptions (Plan) vs. Patient History.
-*   **Example**: Prescribing *Aspirin* to a patient with *Ulcers* triggers a `WARNING`.
-
-### 3. Resilience & Fail-Safe
-*   **Zero-Loss Guarantee**: If AI processing fails (e.g., API Quota Exceeded), patients are **not lost**.
-*   **Retry Logic**: Exponential Backoff (up to 60s) handles traffic bursts.
-*   **Manual Review**: Persistent failures land in a dedicated "Requires Review" queue.
-
-## Verification & Accuracy 📊
-This project includes a robust suite for validating AI performance.
-
-### 1. Batch Verification (`batch_verify.py`)
-Processes a folder of audio files to ensure end-to-end stability.
-```bash
-python batch_verify.py
+# Linux/Mac
+source .venv/bin/activate
 ```
 
-### 2. Accuracy Calibration (`calculate_accuracy.py`)
-Compares generated transcripts against Ground Truth (`.TextGrid`) to compute **Word Error Rate (WER)**.
-*   **Current Performance**: ~15.8% WER (Above Average for conversational medical audio).
-*   **Metric**: Weighted WER (ignoring punctuation/case).
+#### Install Dependencies
+```bash
+pip install -r requirements.txt
+```
 
-### 3. SOAP Quality (`test_soap_generation.py`)
-Verifies that the LLM generates valid JSON SOAP notes with **Strict Grounding** (no hallucinations).
+#### Configure Environment Variables
+Create a `.env` file in the project root:
 
-## Security & Compliance 🛡️
-*   **API Key Safety**: `.env` is gitignored.
-*   **History Scrubbing**: This repository's history has been scrubbed using `git-filter-repo` to remove historical API key leaks.
-*   **PII Redaction**: Enabled by default in `stt_service.py` (via AssemblyAI).
+```env
+# Database
+DATABASE_URL=postgresql://user:password@localhost/neuroassistdb
 
-## Supported File Formats
-The system utilizes AssemblyAI for transcription and supports the following audio/video formats:
-*   **Audio**: `.mp3`, `.wav`, `.aac`, `.m4a`, `.ogg`, `.flac`, `.alac`, `.wma`, `.aiff`, `.au`
-*   **Video**: `.mp4`, `.m4v`, `.mov`, `.wmv`
+# JWT Authentication
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=43200
 
-*Note: Project files (e.g., `.flp`, `.logicx`) or MIDI files are NOT supported.*
+# AI Services
+ASSEMBLYAI_API_KEY=your-assemblyai-api-key
+GEMINI_API_KEY=your-google-gemini-api-key
 
-## ⚠️ Known Limits & Future Scaling
-While robust for pilot usage, the current architecture has known limits to be addressed in the Enterprise Phase:
+# Application
+BACKEND_URL=http://localhost:8000
+FRONTEND_URL=http://localhost:8080
+```
 
-| Limit Category | Risk Description | Planned Mitigation |
-| :--- | :--- | :--- |
-| **Server Restarts** | In-memory tasks (`BackgroundTasks`) die if the server crashes/restarts. | Migrate to **Celery + Redis** for durable job queues. |
-| **Local Storage** | Audio saved to disk (`/uploads`) limits horizontal scaling. | Migrate to **AWS S3 / GCS** for cloud storage. |
-| **Concurrency** | Heavy load (1000+ users) may exhaust DB connections. | Implement **PgBouncer** connection pooling. |
+#### Initialize Database
+```bash
+# The database will be automatically initialized on first run
+python -m uvicorn app.main:app --port 8000
+```
 
-## 📡 Key Endpoints
+### 3. Frontend Setup
 
-### Auth
-*   `POST /api/v1/auth/signup`: **User Registration** (Creates User & Patient/Doctor Profile)
-*   `POST /api/v1/auth/login`: **Authentication** (Returns JWT Bearer Token)
-*   `GET /api/v1/auth/me`: **Context** (Retrieves current authenticated user details)
+```bash
+cd frontend
+npm install
+```
 
-### Clinical Sessions & AI Integration
-*   `POST /api/v1/consultations/{id}/upload`: **Audio Ingestion**
-    *   *Internal Function*: Securely stores file and creates `AudioFile` record.
-    *   *External Service*: Triggers **AssemblyAI Upload** & **Transcription** (`v2/transcript`).
-    *   *AI Features Used*: Speaker Diarization, PII Redaction, Medical Word Boost.
-*   `GET /api/v1/consultations/{id}`: **Status Polling**
-    *   *Function*: Returns current state (`IN_PROGRESS`, `COMPLETED`).
-    *   *Result*: Delivers the final transcript and confidence scores once AI processing is finished.
+## 🚀 Running the Application
 
-### Dashboard & Operations
-*   `GET /api/v1/dashboard/queue`: **Smart Queue**
-    *   Returns list of completed patients sorted by **Urgency** (Critical first).
-*   `GET /api/v1/dashboard/queue/failed`: **Review Queue**
-    *   Returns patients where AI failed (Quota/Error) and require manual triage.
+### Start Backend
+```bash
+# From project root
+python -m uvicorn app.main:app --reload --port 8000
+```
+
+Backend will be available at: http://localhost:8000
+- API Documentation (Swagger): http://localhost:8000/docs
+
+### Start Frontend
+```bash
+# From frontend directory
+cd frontend
+npm run dev
+```
+
+Frontend will be available at: http://localhost:8080
+
+## 📁 Project Structure
+
+```
+DB-API_Integrated_NeuroAssist-1/
+├── app/
+│   ├── api/
+│   │   └── v1/
+│   │       ├── appointments.py    # Appointment endpoints
+│   │       ├── auth.py           # Authentication
+│   │       ├── consultations.py  # Consultation management
+│   │       ├── dashboard.py      # Dashboard stats
+│   │       └── users.py          # User management
+│   ├── core/
+│   │   ├── config.py            # Configuration
+│   │   ├── db.py                # Database connection
+│   │   └── security.py          # Password hashing, JWT
+│   ├── models/
+│   │   └── base.py              # Database models
+│   ├── schemas/
+│   │   └── appointment.py       # Pydantic schemas
+│   ├── services/
+│   │   ├── audio_processing.py  # AssemblyAI integration
+│   │   ├── gemini_service.py    # Google Gemini integration
+│   │   └── soap_generator.py    # SOAP note generation
+│   └── main.py                  # FastAPI application
+│
+├── frontend/
+│   ├── src/
+│   │   ├── pages/
+│   │   │   ├── dashboard/
+│   │   │   │   ├── BookAppointment.tsx
+│   │   │   │   ├── PastConsultations.tsx
+│   │   │   │   └── Profile.tsx
+│   │   │   ├── Login.tsx
+│   │   │   └── SignUp.tsx
+│   │   ├── components/ui/       # Reusable components
+│   │   ├── contexts/            # React contexts
+│   │   └── lib/                 # Utilities
+│   └── package.json
+│
+└── requirements.txt
+```
+
+## 🔐 User Roles
+
+The system supports three user roles:
+
+1. **PATIENT**: Book appointments, upload symptoms, view consultation history
+2. **DOCTOR**: View appointments, manage consultations, generate SOAP notes
+3. **FRONT_DESK**: Administrative access to appointments and users
+
+## 📡 API Endpoints
+
+### Authentication
+- `POST /api/v1/auth/signup` - User registration
+- `POST /api/v1/auth/login` - User login
+- `GET /api/v1/auth/me` - Get current user
+
+### Appointments
+- `POST /api/v1/appointments/` - Create appointment
+- `GET /api/v1/appointments/me` - Get user appointments
+- `PATCH /api/v1/appointments/{id}/status` - Update appointment status
+
+### Consultations
+- `POST /api/v1/consultations/` - Create consultation with audio
+- `GET /api/v1/consultations/me` - Get user consultations
+- `GET /api/v1/consultations/{id}` - Get specific consultation
+
+### Dashboard
+- `GET /api/v1/dashboard/stats` - Get dashboard statistics
+
+## 🧪 Testing
+
+### Backend Tests
+```bash
+pytest tests/
+```
+
+### Frontend Tests
+```bash
+cd frontend
+npm test
+```
+
+## 🔧 Configuration
+
+### CORS Settings
+CORS is configured in `app/main.py`. By default, it allows requests from `http://localhost:8080`.
+
+To modify allowed origins:
+```python
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://your-frontend-url"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
+### Database Models
+Main models include:
+- User (patients, doctors, front desk)
+- PatientProfile & DoctorProfile
+- Appointment
+- Consultation
+- AudioFile
+- SOAPNote
+- AuditLog
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**CORS Errors**
+- Ensure frontend is running on http://localhost:8080
+- Check CORS middleware configuration in `app/main.py`
+- Clear browser cache and restart both servers
+
+**Database Connection Errors**
+- Verify PostgreSQL is running
+- Check `DATABASE_URL` in `.env` file
+- Ensure database exists
+
+**Authentication Issues**
+- Verify JWT_SECRET is set in `.env`
+- Check token expiration settings
+- Ensure user is logged in before accessing protected routes
+
+**Audio Upload Failures**
+- Verify AssemblyAI API key is valid
+- Check file size limits
+- Ensure proper audio format (supported formats: mp3, wav, m4a, aac)
+
+## 📝 License
+
+[Your License Here]
+
+## 👥 Contributors
+
+[Your Contributors Here]
+
+## 📞 Support
+
+For issues and questions:
+- Create an issue in the repository
+- Contact: [Your Contact Info]
+
+## 🔄 Recent Updates
+
+### Latest Version (v3.0)
+- ✅ Fixed appointment booking CORS issues
+- ✅ Improved audio transcription pipeline
+- ✅ Enhanced AI-powered symptom analysis
+- ✅ Optimized database queries
+- ✅ Updated frontend UI/UX
+
+---
+
+**Built with ❤️ for better healthcare management**

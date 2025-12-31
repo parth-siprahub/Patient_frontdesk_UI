@@ -4,7 +4,7 @@ from app.core.db import get_session
 from app.models.base import User, PatientProfile, UserRole
 from app.api.deps import get_current_user
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 router = APIRouter()
@@ -44,7 +44,7 @@ def update_my_profile(
         profile = PatientProfile(user_id=current_user.id, first_name="", last_name="")
         session.add(profile)
     
-    profile_data = profile_in.model_dump(exclude_unset=True)
+    profile_data = profile_in.dict(exclude_unset=True)
     for key, value in profile_data.items():
         setattr(profile, key, value)
         
@@ -66,3 +66,32 @@ def get_my_profile(
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
     return profile
+
+@router.get("/doctors", response_model=List[dict])
+def list_doctors(
+    session: Session = Depends(get_session)
+):
+    """
+    Returns a list of all doctors with their profiles.
+    """
+    from app.models.base import DoctorProfile
+    
+    query = (
+        select(User, DoctorProfile)
+        .join(DoctorProfile, User.id == DoctorProfile.user_id)
+        .where(User.role == UserRole.DOCTOR)
+    )
+    results = session.exec(query).all()
+    
+    doctors = []
+    for user, profile in results:
+        doctors.append({
+            "id": str(user.id),
+            "email": user.email,
+            "first_name": profile.first_name,
+            "last_name": profile.last_name,
+            "specialization": profile.specialization,
+            "clinic_address": profile.clinic_address,
+            "image": f"https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face" # Placeholder
+        })
+    return doctors

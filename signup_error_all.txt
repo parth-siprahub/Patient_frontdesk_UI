@@ -1,0 +1,427 @@
+python : C:\Users\san
+dr\AppData\Local\Pack
+ages\PythonSoftwareFo
+undation.Python.3.11_
+qbz5n2kfra8p0\LocalCa
+che\local-packages\Py
+thon311\site-packages
+\pydantic\_internal\_
+fields.py:149: 
+UserWarning: Field 
+"model_version" has 
+conflict with 
+protected namespace 
+"model_".
+At line:1 char:43
++ ... ignup_error.py 
+*>$null; python repro
+duce_signup_error.py 
+*>&1 | Out-F ...
++                    
+         ~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (C:\User   
+ s\sandr\...space    
+ "model_".:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+
+You may be able to 
+resolve this warning 
+by setting `model_con
+fig['protected_namesp
+aces'] = ()`.
+  warnings.warn(
+Traceback (most 
+recent call last):
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\engine\bas
+e.py", line 1969, in 
+_exec_single_context
+Cleaning up existing user...
+    self.dialect.do_e
+xecute(
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\engine\def
+ault.py", line 922, 
+in do_execute
+    cursor.execute(st
+atement, parameters)
+psycopg2.errors.NotNu
+llViolation: null 
+value in column 
+"user_id" of 
+relation 
+"patient_profiles" 
+violates not-null 
+constraint
+DETAIL:  Failing row 
+contains (7dd269a3-f2
+f0-4f28-a696-820f00a7
+cdac, null, Test, 
+User, null, null, 
+1234567890, null, 
+null, null, null, 
+India, null, null, 
+null, null, 
+2025-12-30 
+06:29:15.056, 
+2025-12-30 
+06:29:15.056).
+
+
+The above exception 
+was the direct cause 
+of the following 
+exception:
+
+Traceback (most 
+recent call last):
+  File "C:\Users\sand
+r\Desktop\DB-API_Inte
+grated_NeuroAssist-1\
+reproduce_signup_erro
+r.py", line 47, in 
+<module>
+    reproduce()
+  File "C:\Users\sand
+r\Desktop\DB-API_Inte
+grated_NeuroAssist-1\
+reproduce_signup_erro
+r.py", line 15, in 
+reproduce
+    session.commit()
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\orm\sessio
+n.py", line 1969, in 
+commit
+    trans.commit(_to_
+root=True)
+  File "<string>", 
+line 2, in commit
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\orm\state_
+changes.py", line 
+139, in _go
+    ret_value = 
+fn(self, *arg, **kw)
+                
+^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\orm\sessio
+n.py", line 1256, in 
+commit
+    
+self._prepare_impl()
+  File "<string>", 
+line 2, in 
+_prepare_impl
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\orm\state_
+changes.py", line 
+139, in _go
+    ret_value = 
+fn(self, *arg, **kw)
+                
+^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\orm\sessio
+n.py", line 1231, in 
+_prepare_impl
+    
+self.session.flush()
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\orm\sessio
+n.py", line 4312, in 
+flush
+    
+self._flush(objects)
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\orm\sessio
+n.py", line 4447, in 
+_flush
+    with 
+util.safe_reraise():
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\util\langh
+elpers.py", line 
+146, in __exit__
+    raise exc_value.w
+ith_traceback(exc_tb)
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\orm\sessio
+n.py", line 4408, in 
+_flush
+    flush_context.exe
+cute()
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\orm\unitof
+work.py", line 466, 
+in execute
+    rec.execute(self)
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\orm\unitof
+work.py", line 642, 
+in execute
+    util.preloaded.or
+m_persistence.save_ob
+j(
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\orm\persis
+tence.py", line 85, 
+in save_obj
+    _emit_update_stat
+ements(
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\orm\persis
+tence.py", line 910, 
+in _emit_update_state
+ments
+    c = 
+connection.execute(
+        
+^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\engine\bas
+e.py", line 1416, in 
+execute
+    return meth(
+           ^^^^^
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\sql\elemen
+ts.py", line 517, in 
+_execute_on_connectio
+n
+    return connection
+._execute_clauseeleme
+nt(
+           ^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^
+^^^
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\engine\bas
+e.py", line 1639, in 
+_execute_clauseelemen
+t
+    ret = self._execu
+te_context(
+          ^^^^^^^^^^^
+^^^^^^^^^^^
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\engine\bas
+e.py", line 1848, in 
+_execute_context
+    return self._exec
+_single_context(
+           ^^^^^^^^^^
+^^^^^^^^^^^^^^^^
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\engine\bas
+e.py", line 1988, in 
+_exec_single_context
+    self._handle_dbap
+i_exception(
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\engine\bas
+e.py", line 2344, in 
+_handle_dbapi_excepti
+on
+    raise sqlalchemy_
+exception.with_traceb
+ack(exc_info[2]) 
+from e
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\engine\bas
+e.py", line 1969, in 
+_exec_single_context
+    self.dialect.do_e
+xecute(
+  File "C:\Users\sand
+r\AppData\Local\Packa
+ges\PythonSoftwareFou
+ndation.Python.3.11_q
+bz5n2kfra8p0\LocalCac
+he\local-packages\Pyt
+hon311\site-packages\
+sqlalchemy\engine\def
+ault.py", line 922, 
+in do_execute
+    cursor.execute(st
+atement, parameters)
+sqlalchemy.exc.Integr
+ityError: (psycopg2.e
+rrors.NotNullViolatio
+n) null value in 
+column "user_id" of 
+relation 
+"patient_profiles" 
+violates not-null 
+constraint
+DETAIL:  Failing row 
+contains (7dd269a3-f2
+f0-4f28-a696-820f00a7
+cdac, null, Test, 
+User, null, null, 
+1234567890, null, 
+null, null, null, 
+India, null, null, 
+null, null, 
+2025-12-30 
+06:29:15.056, 
+2025-12-30 
+06:29:15.056).
+
+[SQL: UPDATE 
+patient_profiles SET 
+user_id=%(user_id)s::
+UUID WHERE 
+patient_profiles.id 
+= %(patient_profiles_
+id)s::UUID]
+[parameters: 
+{'user_id': None, 'pa
+tient_profiles_id': '
+7dd269a3-f2f0-4f28-a6
+96-820f00a7cdac'}]
+(Background on this 
+error at: https://sql
+alche.me/e/20/gkpj)

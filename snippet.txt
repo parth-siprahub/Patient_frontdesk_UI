@@ -1,0 +1,10 @@
+                    {date
+                      ?\`Available slots for \${format(date, "d MMMM yyyy")}\` 
+                      : "Please select a date first"}
+                  </CardDescription>
+                </CardHeader>
+                          style={{
+                            height: \`\${height * 60}px\`,
+                      minHeight: '6px',
+                          }}
+                        />
