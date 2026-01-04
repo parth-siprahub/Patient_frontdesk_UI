@@ -4,8 +4,7 @@ from app.core.config import settings
 engine = create_engine(settings.DATABASE_URL, echo=False)
 
 def init_db():
-    # SQLModel.metadata.create_all(engine)  # Disabled to protect existing schema
-    pass
+    SQLModel.metadata.create_all(engine)
 
 def test_connection():
     from sqlalchemy import text

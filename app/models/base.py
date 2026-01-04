@@ -4,6 +4,8 @@ from typing import List, Optional
 from uuid import UUID, uuid4
 from sqlmodel import Field, SQLModel, Relationship, JSON, Column
 
+from sqlalchemy import Enum as SAEnum
+
 class UserRole(str, Enum):
     PATIENT = "PATIENT"
     DOCTOR = "DOCTOR"
@@ -22,7 +24,7 @@ class User(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True, index=True)
     email: str = Field(unique=True, index=True)
     password_hash: str
-    role: UserRole = Field(index=True)
+    role: UserRole = Field(sa_column=Column(SAEnum(UserRole, native_enum=False), index=True))
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -85,7 +87,9 @@ class Appointment(SQLModel, table=True):
     doctor_name: Optional[str] = Field(default=None)
     scheduled_at: datetime = Field(index=True)
     reason: Optional[str] = None
-    status: AppointmentStatus = Field(default=AppointmentStatus.SCHEDULED, index=True)
+    status: AppointmentStatus = Field(
+        sa_column=Column(SAEnum(AppointmentStatus, native_enum=False), default=AppointmentStatus.SCHEDULED, index=True)
+    )
     notes: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
@@ -119,14 +123,18 @@ class Consultation(SQLModel, table=True):
     appointment_id: UUID = Field(foreign_key="appointments.id", unique=True, index=True)
     patient_id: UUID = Field(foreign_key="users.id")
     doctor_id: UUID = Field(foreign_key="users.id")
-    status: ConsultationStatus = Field(default=ConsultationStatus.SCHEDULED)
+    status: ConsultationStatus = Field(
+        sa_column=Column(SAEnum(ConsultationStatus, native_enum=False), default=ConsultationStatus.SCHEDULED)
+    )
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
     notes: Optional[str] = None
     diagnosis: Optional[str] = None
     prescription: Optional[str] = None
     urgency_score: Optional[int] = None
-    triage_category: Optional[TriageCategory] = None
+    triage_category: Optional[TriageCategory] = Field(
+        sa_column=Column(SAEnum(TriageCategory, native_enum=False), nullable=True)
+    )
     safety_warnings: Optional[List[dict]] = Field(default=None, sa_column=Column(JSON))
     requires_manual_review: bool = Field(default=False)
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -145,7 +153,9 @@ class AudioFile(SQLModel, table=True):
     __tablename__ = "audio_files"
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     consultation_id: UUID = Field(foreign_key="consultations.id", unique=True)
-    uploaded_by: AudioUploaderType = Field()
+    uploaded_by: AudioUploaderType = Field(
+        sa_column=Column(SAEnum(AudioUploaderType, native_enum=False))
+    )
     file_name: str
     file_url: str
     file_size: Optional[int] = None

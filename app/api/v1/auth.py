@@ -17,6 +17,8 @@ class UserCreate(BaseModel):
     first_name: str
     last_name: str
     phone: Optional[str] = None
+    age: Optional[int] = None
+    gender: Optional[str] = None
 
 class Token(BaseModel):
     access_token: str
@@ -46,8 +48,10 @@ def signup(user_in: UserCreate, session: Session = Depends(get_session)):
             user_id=new_user.id,
             first_name=user_in.first_name,
             last_name=user_in.last_name,
-            phone_number=user_in.phone
+            phone_number=user_in.phone,
+            gender=user_in.gender
         )
+        # Note: age is not in PatientProfile but we could store it if needed or calculate DOB
         session.add(new_profile)
     elif new_user.role == UserRole.DOCTOR:
         new_profile = DoctorProfile(

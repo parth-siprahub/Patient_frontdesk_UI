@@ -119,7 +119,7 @@ async def upload_audio(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     session: Session = Depends(get_session),
-    current_user: User = Depends(RoleChecker([UserRole.DOCTOR, UserRole.PATIENT]))
+    current_user: User = Depends(RoleChecker([UserRole.DOCTOR, UserRole.PATIENT, UserRole.FRONT_DESK]))
 ):
     consultation = session.get(Consultation, id)
     if not consultation:
@@ -139,7 +139,13 @@ async def upload_audio(
         shutil.copyfileobj(file.file, buffer)
         
     # Create AudioFile Record
-    uploader_type = AudioUploaderType.DOCTOR if current_user.role == UserRole.DOCTOR else AudioUploaderType.PATIENT
+    if current_user.role == UserRole.DOCTOR:
+        uploader_type = AudioUploaderType.DOCTOR
+    elif current_user.role == UserRole.PATIENT:
+        uploader_type = AudioUploaderType.PATIENT
+    else:
+        uploader_type = AudioUploaderType.SYSTEM
+    
     audio_file = AudioFile(
         id=file_id,
         consultation_id=id,

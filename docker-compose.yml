@@ -19,7 +19,7 @@ services:
     container_name: neuro_backend
     restart: always
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/neuroassist_v3
+      - DATABASE_URL=postgresql://postgres:root@db:5432/neuroassist_v3
       - JWT_SECRET=your_super_secret_jwt_key_here
       - ASSEMBLYAI_API_KEY=your_assemblyai_key_here
       - GEMINI_API_KEY=your_gemini_key_here

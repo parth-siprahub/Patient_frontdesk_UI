@@ -54,15 +54,20 @@ def update_my_profile(
     session.refresh(profile)
     return profile
 
-@router.get("/me/profile", response_model=PatientProfile)
+@router.get("/me/profile")
 def get_my_profile(
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.role != UserRole.PATIENT:
-         raise HTTPException(status_code=400, detail="Endpoint currently for Patients only")
-         
-    profile = session.exec(select(PatientProfile).where(PatientProfile.user_id == current_user.id)).first()
+    if current_user.role == UserRole.PATIENT:
+        profile = session.exec(select(PatientProfile).where(PatientProfile.user_id == current_user.id)).first()
+    elif current_user.role == UserRole.DOCTOR:
+        from app.models.base import DoctorProfile
+        profile = session.exec(select(DoctorProfile).where(DoctorProfile.user_id == current_user.id)).first()
+    else:
+        # Front desk might not have a profile, just return empty data or basic user info
+        return {"first_name": "Front", "last_name": "Desk", "role": current_user.role}
+
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
     return profile
@@ -95,3 +100,27 @@ def list_doctors(
             "image": f"https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face" # Placeholder
         })
     return doctors
+@router.get("/patients", response_model=List[dict])
+def list_patients(
+    session: Session = Depends(get_session)
+):
+    """
+    Returns a list of all patients with their profiles.
+    """
+    query = (
+        select(User, PatientProfile)
+        .join(PatientProfile, User.id == PatientProfile.user_id)
+        .where(User.role == UserRole.PATIENT)
+    )
+    results = session.exec(query).all()
+    
+    patients = []
+    for user, profile in results:
+        patients.append({
+            "id": str(user.id),
+            "email": user.email,
+            "first_name": profile.first_name,
+            "last_name": profile.last_name,
+            "phone_number": profile.phone_number,
+        })
+    return patients
