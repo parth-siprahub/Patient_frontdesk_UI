@@ -5,11 +5,16 @@ __pycache__/
 *.so
 .Python
 venv/
+.venv/
 env/
 ENV/
 *.egg-info/
 dist/
 build/
+node_modules/
+.next/
+.serverless/
+out/
 
 # Environment
 .env
