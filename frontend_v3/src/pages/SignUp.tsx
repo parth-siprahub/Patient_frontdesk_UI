@@ -120,20 +120,21 @@ const SignUp = () => {
   };
 
   const handleNext = () => {
-    // Mark all fields in current step as touched
-    const stepFields: Record<number, (keyof FormData)[]> = {
-      1: ["fullName", "email", "role"],
-      2: ["password", "confirmPassword"],
-      3: ["age", "gender", "phone", "terms"]
-    };
-
-    const fieldsToTouch = stepFields[step] || [];
-    const newTouched = { ...touched };
-    fieldsToTouch.forEach(f => newTouched[f] = true);
-    setTouched(newTouched);
-
     if (validateStep(step)) {
+      // Only proceed to next step if validation passes
       setStep(step + 1);
+    } else {
+      // Mark current step fields as touched to show validation errors
+      const stepFields: Record<number, (keyof FormData)[]> = {
+        1: ["fullName", "email", "role"],
+        2: ["password", "confirmPassword"],
+        3: ["age", "gender", "phone", "terms"]
+      };
+
+      const fieldsToTouch = stepFields[step] || [];
+      const newTouched = { ...touched };
+      fieldsToTouch.forEach(f => newTouched[f] = true);
+      setTouched(newTouched);
     }
   };
 
@@ -147,7 +148,17 @@ const SignUp = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateStep(3)) return;
+    if (!validateStep(3)) {
+      // Mark all step 3 fields as touched to show errors
+      setTouched({
+        ...touched,
+        age: true,
+        gender: true,
+        phone: true,
+        terms: true
+      });
+      return;
+    }
 
     const result = signUpSchema.safeParse(formData);
 
@@ -158,6 +169,12 @@ const SignUp = () => {
         zodErrors[field] = err.message;
       });
       setErrors(zodErrors);
+      // Mark all fields with errors as touched
+      const newTouched = { ...touched };
+      Object.keys(zodErrors).forEach(key => {
+        newTouched[key as keyof FormData] = true;
+      });
+      setTouched(newTouched);
       return;
     }
 
